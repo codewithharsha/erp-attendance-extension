@@ -13,6 +13,23 @@ document.addEventListener("DOMContentLoaded", function () {
     let analysisTable = document.getElementById("analysisTable");
     let backButton = document.getElementById("backButton");
 
+
+    let popupContainer = document.getElementById("popupContainer");
+    let popupMessage = document.getElementById("popupMessage");
+    let closePopup = document.getElementById("closePopup");
+
+    // Function to show custom popup
+    function showPopup(message, color) {
+        popupMessage.innerHTML = message;
+        popupMessage.style.color = color;  // Dynamically set text color
+        popupContainer.style.display = "block";
+    }
+    
+    // Event listener to close the popup
+    closePopup.addEventListener("click", function () {
+        popupContainer.style.display = "none";
+    });
+
     // ✅ Load saved periods per day from storage
     chrome.storage.local.get(["periodsPerDay", "totalHeld", "totalPresent"], function (data) {
         if (data.periodsPerDay) {
@@ -50,10 +67,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!isNaN(periodsPerDay) && periodsPerDay > 0) {
             chrome.storage.local.set({ "periodsPerDay": periodsPerDay }, function () {
-                alert("Saved successfully!");
+                showPopup("Saved successfully!","green");
             });
         } else {
-            alert("Please enter a valid number of periods per day.");
+            showPopup("Please enter a valid number of periods per day.","red");
         }
     });
 
@@ -70,19 +87,19 @@ document.addEventListener("DOMContentLoaded", function () {
     
         // 🛑 Check if the start date is today or in the future
         if (isNaN(startDate.getTime()) || startDate < today) {
-            alert("⚠️ Error: Start date must be today or a future date.");
+            showPopup("⚠️ Error: Start date must be today or a future date.","red");
             return;
         }
     
         // 🛑 Check if the end date is valid
         if (isNaN(globalEndDate.getTime()) || globalEndDate < startDate) {
-            alert("⚠️ Error: End date must be greater than or equal to the start date.");
+            showPopup("⚠️ Error: End date must be greater than or equal to the start date.","red");
             return;
         }
     
         // 🛑 Ensure that the number of holidays is entered and is a valid non-negative number
         if (holidaysInput === "" || isNaN(holidaysInput) || parseInt(holidaysInput) < 0) {
-            alert("⚠️ Error: Please enter a valid number of holidays (0 or more).");
+            showPopup("⚠️ Error: Please enter a valid number of holidays (0 or more).","red");
             return;
         }
     
@@ -97,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
             // 🛑 Ensure valid data for attendance calculations
             if (totalClasses === 0 || periodsPerDay === 0) {
-                alert("⚠️ Error: Please enter valid numbers for periods per day and attendance data.");
+                showPopup("Error: Please enter valid numbers for periods per day and attendance data.","red");
                 return;
             }
     

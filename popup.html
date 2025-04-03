@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Predictor</title>
     <script src="popup.js" defer></script>
+    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -76,9 +77,7 @@
 
         <hr>
         <label>Start Date:</label>
-        <p style="font-size: 12px; color: #e51616; margin-bottom: 5px;">
-            Note: Set the start date to today if attendance isn't updated; otherwise, use tomorrow.
-        </p>
+        <p class="note">Set the start date to today if attendance isn't updated; otherwise, use tomorrow.</p>
         <input type="date" id="startDate">
 
         <label>End Date:</label>
@@ -92,7 +91,7 @@
         <div id="output"></div>
     </div>
 
-    <button id="viewAnalysisButton" style="display: none;">View Detailed Analysis</button>
+    <button id="viewAnalysisButton" class="hidden">View Detailed Analysis</button>
 
     <!-- Detailed Analysis UI (Initially Hidden) -->
     <div id="analysisContainer" class="hidden">
@@ -109,6 +108,12 @@
             </tbody>
         </table>
         <button id="backButton">← Back</button>
+    </div>
+
+    <!-- Custom Popup Alert -->
+    <div id="popupContainer" class="hidden">
+        <div id="popupMessage"></div>
+        <button id="closePopup">OK</button>
     </div>
 
 </body>
