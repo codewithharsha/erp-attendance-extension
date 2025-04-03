@@ -18,17 +18,25 @@ document.addEventListener("DOMContentLoaded", function () {
     let popupMessage = document.getElementById("popupMessage");
     let closePopup = document.getElementById("closePopup");
 
-    // Function to show custom popup
+    // Function to show custom popup with dynamic colors
+    // Function to show custom popup with dynamic colors and auto-close after 5 seconds
     function showPopup(message, color) {
         popupMessage.innerHTML = message;
-        popupMessage.style.color = color;  // Dynamically set text color
+        popupMessage.style.color = color;
         popupContainer.style.display = "block";
+
+        // Auto-close the popup after 5 seconds
+        setTimeout(() => {
+            popupContainer.style.display = "none";
+        }, 3000);
     }
-    
+
+
     // Event listener to close the popup
     closePopup.addEventListener("click", function () {
         popupContainer.style.display = "none";
     });
+
 
     // ✅ Load saved periods per day from storage
     chrome.storage.local.get(["periodsPerDay", "totalHeld", "totalPresent"], function (data) {
@@ -67,10 +75,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!isNaN(periodsPerDay) && periodsPerDay > 0) {
             chrome.storage.local.set({ "periodsPerDay": periodsPerDay }, function () {
-                showPopup("Saved successfully!","green");
+                showPopup("Saved successfully!", "green");
             });
         } else {
-            showPopup("Please enter a valid number of periods per day.","red");
+            showPopup("Please enter a valid number of periods per day.", "red");
         }
     });
 
@@ -79,50 +87,50 @@ document.addEventListener("DOMContentLoaded", function () {
         let startDateInput = document.getElementById("startDate").value;
         let endDateInput = document.getElementById("endDate").value;
         let holidaysInput = document.getElementById("holidays").value;
-    
+
         let startDate = new Date(startDateInput);
         globalEndDate = new Date(endDateInput); // Store globally
         let today = new Date();
         today.setHours(0, 0, 0, 0); // Normalize today's date
-    
+
         // 🛑 Check if the start date is today or in the future
         if (isNaN(startDate.getTime()) || startDate < today) {
-            showPopup("⚠️ Error: Start date must be today or a future date.","red");
+            showPopup("⚠️ Error: Start date must be today or a future date.", "red");
             return;
         }
-    
+
         // 🛑 Check if the end date is valid
         if (isNaN(globalEndDate.getTime()) || globalEndDate < startDate) {
-            showPopup("⚠️ Error: End date must be greater than or equal to the start date.","red");
+            showPopup("⚠️ Error: End date must be greater than or equal to the start date.", "red");
             return;
         }
-    
+
         // 🛑 Ensure that the number of holidays is entered and is a valid non-negative number
         if (holidaysInput === "" || isNaN(holidaysInput) || parseInt(holidaysInput) < 0) {
-            showPopup("⚠️ Error: Please enter a valid number of holidays (0 or more).","red");
+            showPopup("⚠️ Error: Please enter a valid number of holidays (0 or more).", "red");
             return;
         }
-    
+
         globalHolidays = parseInt(holidaysInput); // Store globally
         let futureDays = Math.floor((globalEndDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) + 1;
         let futureWorkingDays = futureDays - globalHolidays;
-    
+
         chrome.storage.local.get(["periodsPerDay", "totalHeld", "totalPresent"], function (data) {
             let periodsPerDay = parseInt(data.periodsPerDay || 0);
             let totalClasses = parseInt(data.totalHeld || 0);
             let attendedClasses = parseInt(data.totalPresent || 0);
-    
+
             // 🛑 Ensure valid data for attendance calculations
             if (totalClasses === 0 || periodsPerDay === 0) {
-                showPopup("Error: Please enter valid numbers for periods per day and attendance data.","red");
+                showPopup("Error: Please enter valid numbers for periods per day and attendance data.", "red");
                 return;
             }
-    
+
             let currentAbsences = totalClasses - attendedClasses;
             let futureWorkingClasses = futureWorkingDays * periodsPerDay;
             let totalExpectedClasses = totalClasses + futureWorkingClasses;
             let maxAllowedAbsences = Math.floor(totalExpectedClasses - 0.75 * totalExpectedClasses - currentAbsences);
-    
+
             // Display max absences allowed
             let outputMsg;
             if (maxAllowedAbsences >= futureWorkingClasses) {
@@ -130,15 +138,15 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 outputMsg = `<p>You can be absent for <span style="color: green; font-weight: bold;">${maxAllowedAbsences}</span> more classes in the selected period while maintaining 75% attendance.</p>`;
             }
-    
+
             outputElem.innerHTML = outputMsg;
-    
+
             // Show the "View Detailed Analysis" button
             viewAnalysisButton.style.display = "block";
         });
     });
-    
-    
+
+
 
     // ✅ Handle "View Detailed Analysis" button click
     viewAnalysisButton.addEventListener("click", function () {
