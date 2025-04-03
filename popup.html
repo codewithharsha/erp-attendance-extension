@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Predictor</title>
+    <script src="popup.js" defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 320px;
+            padding: 15px;
+        }
+
+        label,
+        input {
+            display: block;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #output {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Main Attendance UI -->
+    <div id="mainContainer">
+        <h3>Attendance Planner</h3>
+        <p><b>ERP Attendance:</b> <span id="erpAttendance">Loading...</span></p>
+        <p><b>Current Present:</b> <span id="currentPresent">Loading...</span></p>
+        <p><b>Current Held:</b> <span id="currentHeld">Loading...</span></p>
+
+        <hr>
+
+        <label>No. of periods per day:</label>
+        <input type="number" id="periodsPerDay" min="1">
+        <button id="savePeriods">Save</button>
+
+        <hr>
+        <label>Start Date:</label>
+        <p style="font-size: 12px; color: #e51616; margin-bottom: 5px;">
+            Note: Set the start date to today if attendance isn't updated; otherwise, use tomorrow.
+        </p>
+        <input type="date" id="startDate">
+
+        <label>End Date:</label>
+        <input type="date" id="endDate">
+
+        <label>No. of Holidays in Selected Period:</label>
+        <input type="number" id="holidays" min="0">
+
+        <button id="calculate">Calculate</button>
+
+        <div id="output"></div>
+    </div>
+
+    <button id="viewAnalysisButton" style="display: none;">View Detailed Analysis</button>
+
+    <!-- Detailed Analysis UI (Initially Hidden) -->
+    <div id="analysisContainer" class="hidden">
+        <h3>Detailed Attendance Analysis</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>No. of Classes Absent</th>
+                    <th>New Attendance %</th>
+                </tr>
+            </thead>
+            <tbody id="analysisTable">
+                <!-- Data will be inserted here dynamically -->
+            </tbody>
+        </table>
+        <button id="backButton">← Back</button>
+    </div>
+
+</body>
+
+</html>
