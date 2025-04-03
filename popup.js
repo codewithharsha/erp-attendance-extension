@@ -59,33 +59,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ Calculate allowed absences
     calculateButton.addEventListener("click", function () {
-        let startDate = new Date(document.getElementById("startDate").value);
-        globalEndDate = new Date(document.getElementById("endDate").value); // Store globally
-        globalHolidays = parseInt(document.getElementById("holidays").value || 0); // Store globally
-
-        if (isNaN(startDate.getTime()) || isNaN(globalEndDate.getTime()) || globalEndDate < startDate) {
-            alert("Please enter valid start and end dates.");
+        let startDateInput = document.getElementById("startDate").value;
+        let endDateInput = document.getElementById("endDate").value;
+        let holidaysInput = document.getElementById("holidays").value;
+    
+        let startDate = new Date(startDateInput);
+        globalEndDate = new Date(endDateInput); // Store globally
+        let today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize today's date
+    
+        // 🛑 Check if the start date is today or in the future
+        if (isNaN(startDate.getTime()) || startDate < today) {
+            alert("⚠️ Error: Start date must be today or a future date.");
             return;
         }
-
+    
+        // 🛑 Check if the end date is valid
+        if (isNaN(globalEndDate.getTime()) || globalEndDate < startDate) {
+            alert("⚠️ Error: End date must be greater than or equal to the start date.");
+            return;
+        }
+    
+        // 🛑 Ensure that the number of holidays is entered and is a valid non-negative number
+        if (holidaysInput === "" || isNaN(holidaysInput) || parseInt(holidaysInput) < 0) {
+            alert("⚠️ Error: Please enter a valid number of holidays (0 or more).");
+            return;
+        }
+    
+        globalHolidays = parseInt(holidaysInput); // Store globally
         let futureDays = Math.floor((globalEndDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24)) + 1;
         let futureWorkingDays = futureDays - globalHolidays;
-
+    
         chrome.storage.local.get(["periodsPerDay", "totalHeld", "totalPresent"], function (data) {
             let periodsPerDay = parseInt(data.periodsPerDay || 0);
             let totalClasses = parseInt(data.totalHeld || 0);
             let attendedClasses = parseInt(data.totalPresent || 0);
-
+    
+            // 🛑 Ensure valid data for attendance calculations
             if (totalClasses === 0 || periodsPerDay === 0) {
-                alert("Please enter valid numbers!");
+                alert("⚠️ Error: Please enter valid numbers for periods per day and attendance data.");
                 return;
             }
-
+    
             let currentAbsences = totalClasses - attendedClasses;
             let futureWorkingClasses = futureWorkingDays * periodsPerDay;
             let totalExpectedClasses = totalClasses + futureWorkingClasses;
             let maxAllowedAbsences = Math.floor(totalExpectedClasses - 0.75 * totalExpectedClasses - currentAbsences);
-
+    
             // Display max absences allowed
             let outputMsg;
             if (maxAllowedAbsences >= futureWorkingClasses) {
@@ -93,13 +113,15 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 outputMsg = `<p>You can be absent for <span style="color: green; font-weight: bold;">${maxAllowedAbsences}</span> more classes in the selected period while maintaining 75% attendance.</p>`;
             }
-
+    
             outputElem.innerHTML = outputMsg;
-
+    
             // Show the "View Detailed Analysis" button
             viewAnalysisButton.style.display = "block";
         });
     });
+    
+    
 
     // ✅ Handle "View Detailed Analysis" button click
     viewAnalysisButton.addEventListener("click", function () {
